@@ -13,7 +13,7 @@ class Equirectangular:
         #self._img[:, w/8:, :] = cp[:, :7*w/8, :]
     
 
-    def GetPerspective(self, FOV, THETA, PHI, height, width, RADIUS = 128):
+    def GetPerspective(self, wFOV, hFOV, THETA, PHI, width, RADIUS = 128):
         #
         # THETA is left/right angle, PHI is up/down angle, both in degree
         #
@@ -23,9 +23,10 @@ class Equirectangular:
         equ_cx = (equ_w - 1) / 2.0
         equ_cy = (equ_h - 1) / 2.0
 
-        wFOV = FOV
-        hFOV = float(height) / width * wFOV
-
+        #wFOV = FOV
+        #hFOV = float(height) / width * wFOV
+        height = int(float(hFOV)/wFOV * width)
+        
         c_x = (width - 1) / 2.0
         c_y = (height - 1) / 2.0
 
