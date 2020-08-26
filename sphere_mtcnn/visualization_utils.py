@@ -19,7 +19,7 @@ def show_bboxes(img, bounding_boxes, facial_landmarks=[]):
     for b in bounding_boxes:
         draw.rectangle([
             (b[0], b[1]), (b[2], b[3])
-        ], outline='red')
+        ], outline='white')
 
     for p in facial_landmarks:
         for i in range(5):

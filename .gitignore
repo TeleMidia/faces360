@@ -4,3 +4,6 @@
 /data
 .idea
 ./faces_clustering/__pycache__
+./mtcnn_torch/__pycache__
+./sphere_mtcnn/__pycache__
+./spherenet/__pycache__
