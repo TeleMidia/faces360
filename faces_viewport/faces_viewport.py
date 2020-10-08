@@ -55,7 +55,7 @@ def detect_faces(detector, pixels_rgb):
                 
     return pixels_rgb, bounds, confidences
 
-def detect_faces_viewports(img_path, rows = 3, cols = 8, fovw = 60, fovh = 60, width = 720, verbose = 0):
+def detect_faces_viewports(img_path, rows = 4, cols = 8, fovw = 60, fovh = 60, width = 720, verbose = 0):
 	#all_bounds = []
 	equ = E2P.Equirectangular(img_path)
 
@@ -69,7 +69,7 @@ def detect_faces_viewports(img_path, rows = 3, cols = 8, fovw = 60, fovh = 60, w
 
 	for i in range(rows):
 	    for j in range(cols):
-	        lat = i*(-60)+60
+	        lat = i*(-60)+90
 	        long = 45*j
 	        img, long_map, lat_map = equ.GetPerspective(fovw, fovh, long, lat, width)    
 	        img, bounds, confidences = detect_faces(detector, np.uint16(img[:,:,::-1])) #x1,x2,y1,y2       
@@ -130,6 +130,7 @@ def non_maximum_supression(B, S, nt):
         M = B[m]
         D.append(B_back.index(B[m]))
         B.pop(m)
+        S.pop(m)
         
         to_remove = []
         for i in range(len(B)):
