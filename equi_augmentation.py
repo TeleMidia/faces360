@@ -31,6 +31,23 @@ def get_rotation_matrices(phi, theta): #in radians
     
     return M, M_inv
 
+def get8boundingpointsy_x(bounding_box):#bounding_box = (minx, miny),(maxx,maxy)
+    
+    (minx, miny),(maxx,maxy) = bounding_box
+    middle_x = (minx+maxx)//2
+    middle_y = (miny+maxy)//2
+    
+    t_left   = (miny,minx) #top #left
+    t_center = (miny, middle_x) #top center
+    t_right  = (miny, maxx) #top #right
+    c_left   = (middle_y, minx) #left center
+    c_right  = (middle_y, maxx) #right center
+    b_left   = (maxy, minx) #bottom #left
+    b_center = (maxy, middle_x) #bottom center
+    b_right  = (maxy, maxx) #bottom #right
+    
+    return [t_left, t_center, t_right, c_left, c_right, b_left, b_center, b_right]
+
 def project_points(points, delta, eq_cx, eq_cy, r_h, r_w, M, image):
 	#equi_points = equirectangular_image.copy()  
 
@@ -98,10 +115,10 @@ def get_search_ranges(eq_bound, eq_w, eq_h, phi, theta, alpha = 5):
 
 	return x_range, y_range
 
-def draw_points(image, points, color = (0,0,255)):
+def draw_points(image, points, color = (0,0,255), radius = 8, thickness = -1):
 	image_points = image.copy()
 	for i, p in enumerate(points):	    
-	    image_points = cv2.circle(image_points, (p[1],p[0]), 8, color, 5)
+	    image_points = cv2.circle(image_points, (p[1],p[0]), radius, color, thickness)
 	return image_points
 
 '''
@@ -123,26 +140,19 @@ def image_projection_to_equi(equirectangular_image, image, phi = 0, theta = 0, r
 
 	r_w = (image.shape[1]/image.shape[0])*r_h
 
-	p1 = (0,0) #top #left
-	p2 = (0, int(w/2)) #top center
-	p3 = (0, w-1) #top #right
-	p4 = (int(h/2), 0) #left center
-	p5 = (int(h/2), w-1) #right center
-	p6 = (h-1, 0) #bottom #left
-	p7 = (h-1, int(w/2)) #bottom center
-	p8 = (h-1, w-1) #bottom #right
-
-	points = [p1,p2,p3,p4,p5,p6,p7,p8]
+	points = get8boundingpointsy_x(((0,0),(w-1,h-1)))#bounding_box = (minx, miny),(maxx,maxy) 
 
 	M, M_inv = get_rotation_matrices(phi, theta)
 
-	eq_bound = project_points(points, delta, eq_cx, eq_cy, r_h, r_w, M, image)
+	points_projector = lambda ps: project_points(ps, delta, eq_cx, eq_cy, r_h, r_w, M, image)
+
+	eq_bound = points_projector(points)
 
 	x_range, y_range = get_search_ranges(eq_bound, eq_w, eq_h, phi, theta)
 
 	if draw_intermediate:
-		image_points = draw_points(image, points)
-		eq_points = draw_points(equirectangular_image, eq_bound)
+		image_points = draw_points(image, points, radius = 4)
+		eq_points = draw_points(equirectangular_image, eq_bound, radius = 4)
 		eq_area = equirectangular_image.copy()
 
 	for i in y_range:
@@ -175,5 +185,5 @@ def image_projection_to_equi(equirectangular_image, image, phi = 0, theta = 0, r
 	            eq_area[i,j] = [0, 0, 255]
 	
 	if draw_intermediate:
-		return equirectangular_image, [image_points, eq_points, eq_area]
-	return equirectangular_image, None
+		return equirectangular_image, [image_points, eq_points, eq_area], points_projector
+	return equirectangular_image, None, points_projector
