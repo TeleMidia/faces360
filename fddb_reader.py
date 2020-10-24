@@ -54,18 +54,19 @@ def read_fold(file_path):
 
 	return images
 
-def draw_image(image):
+def draw_image(image, draw_faces = True):
 
 	mat = cv2.imread('../data/originalPics/'+image['path']+'.jpg', cv2.IMREAD_COLOR)
 
-	faces = image['faces']
+	if draw_faces:
+		faces = image['faces']
 
-	for face in faces:
-	    start_point, end_point = face['bounding_box']
-	    
-	    mat = cv2.ellipse(mat, face['center'], face['axes_length'], face['angle'], 0, 360,(0,0,255), 2)
-	    
-	    mat = cv2.rectangle(mat, start_point, end_point, (0,255,0), 2)
+		for face in faces:
+		    start_point, end_point = face['bounding_box']
+		    
+		    mat = cv2.ellipse(mat, face['center'], face['axes_length'], face['angle'], 0, 360,(0,0,255), 2)
+		    
+		    mat = cv2.rectangle(mat, start_point, end_point, (0,255,0), 2)
 
 	return mat
 	
