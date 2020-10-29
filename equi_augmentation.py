@@ -123,7 +123,7 @@ def get_search_ranges(eq_bound, eq_w, eq_h, phi, theta, alpha = 5):
 def draw_points(image, points, color = (0,0,255), radius = 8, thickness = -1):
     image_points = image.copy()
     for i, p in enumerate(points):      
-        image_points = cv2.circle(image_points, (p[1],p[0]), radius, color, thickness)
+        image_points = cv2.circle(image_points, p, radius, color, thickness)
     return image_points
 
 '''
