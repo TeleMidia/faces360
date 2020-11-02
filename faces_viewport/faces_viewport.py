@@ -45,6 +45,8 @@ def detect_faces(detector, pixels_rgb):
             x2, y2 = x1 + width, y1 + height
             x1 = max(x1,0)
             y1 = max(y1,0)
+            x2 = min(x2,pixels_rgb.shape[1]-1)
+            y2 = min(y2,pixels_rgb.shape[0]-1)
             face = pixels_rgb[y1:y2, x1:x2]
 
             if face.shape[0] > 0 and face.shape[1] > 0:
@@ -55,7 +57,7 @@ def detect_faces(detector, pixels_rgb):
                 
     return pixels_rgb, bounds, confidences
 
-def detect_faces_viewports(img_path, rows = 4, cols = 8, fovw = 60, fovh = 60, width = 720, verbose = 0):
+def detect_faces_viewports(img_path, rows = 4, cols = 9, fovw = 60, fovh = 60, width = 720, verbose = 0):
 	#all_bounds = []
 	equ = E2P.Equirectangular(img_path)
 
@@ -70,7 +72,7 @@ def detect_faces_viewports(img_path, rows = 4, cols = 8, fovw = 60, fovh = 60, w
 	for i in range(rows):
 	    for j in range(cols):
 	        lat = i*(-60)+90
-	        long = 45*j
+	        long = -180+45*j
 	        img, long_map, lat_map = equ.GetPerspective(fovw, fovh, long, lat, width)    
 	        img, bounds, confidences = detect_faces(detector, np.uint16(img[:,:,::-1])) #x1,x2,y1,y2       
 	        
