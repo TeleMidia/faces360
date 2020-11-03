@@ -35,3 +35,14 @@ def generate_colors(n):
         h += steph
 
     return color_values
+
+def adjust_bounds(vec, size_img):
+    #print(vec)
+    right_side = [a for a in vec if a[0]>size_img//2]
+    if len(right_side) > 0 and len(right_side) < len(vec):
+        mean_right_x = np.mean(right_side, axis=0)[0]
+        for i in range(len(vec)):
+            if vec[i] not in right_side:
+                if abs(vec[i][0]+size_img-mean_right_x)<abs(vec[i][0]-mean_right_x):
+                    vec[i] = (vec[i][0]+size_img, vec[i][1])
+    return vec

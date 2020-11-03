@@ -69,16 +69,6 @@ def add_point(points, new_point, border_view, width_eq, fovw):
 		points = points+[new_point]
 	return points
 '''
-def adjust_bounds(vec, size_img):
-	#print(vec)
-	right_side = [a for a in vec if a[0]>size_img//2]
-	if len(right_side) > 0 and len(right_side) < len(vec):
-		mean_right_x = np.mean(right_side, axis=0)[0]
-		for i in range(len(vec)):
-			if vec[i] not in right_side:
-				if abs(vec[i][0]+size_img-mean_right_x)<abs(vec[i][0]-mean_right_x):
-					vec[i] = (vec[i][0]+size_img, vec[i][1])
-	return vec
 
 def detect_faces_viewports(img_path, rows = 4, cols = 9, fovw = 60, fovh = 60, width = 720, verbose = 0):
 	#all_bounds = []
@@ -132,7 +122,7 @@ def detect_faces_viewports(img_path, rows = 4, cols = 9, fovw = 60, fovh = 60, w
 
 				points.append((int(long_map[(y1+y2)//2, x1]), int(lat_map[(y1+y2)//2, x1])))
 
-				points = adjust_bounds(points, equ._img.shape[1])
+				#points = adjust_bounds(points, equ._img.shape[1])
 
 				eq_bounds = eq_bounds+[points]
 				all_confs = all_confs+[confidences]
