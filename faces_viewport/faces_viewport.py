@@ -8,6 +8,7 @@ import os
 from faces_clustering import get_files_folder, VideoClustering, is_image
 from faces_clustering import Equirec2Perspec as E2P
 from mtcnn import MTCNN
+from mtcnn_torch import MTCNN_Torch
 import numpy as np
 from shapely import geometry
 
@@ -56,10 +57,8 @@ def detect_faces_tf(detector, pixels):
 				pixels = cv2.rectangle(pixels, (x1,y1), (x2,y2), (255,0,0), 5)
 				
 	return pixels, bounds, confidences
+
 '''
-def detect_faces_pytorch(detector, pixels):
-
-
 def add_point(points, new_point, border_view, width_eq, fovw):
 	
 	if border_view:
@@ -79,8 +78,8 @@ def detect_faces_viewports(img_path, rows = 4, cols = 9, fovw = 60, fovh = 60, w
 
 	eq_bounds = []
 	all_confs = [] #all confidences from detected faces in all lat long coordinates
-	detector = MTCNN()
-
+	#detector = MTCNN()
+	detector = MTCNN_Torch()
 	if verbose > 0:
 		fig, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(18, 10))
 
@@ -90,7 +89,8 @@ def detect_faces_viewports(img_path, rows = 4, cols = 9, fovw = 60, fovh = 60, w
 			lat = i*(-60)+90
 			long = -180+45*j
 			img, long_map, lat_map = equ.GetPerspective(fovw, fovh, long, lat, width)    
-			img, bounds, confidences = detect_faces_tf(detector, np.uint16(img)) #x1,x2,y1,y2       
+			#img, bounds, confidences = detect_faces_tf(detector, np.uint16(img)) #x1,x2,y1,y2       
+			img, bounds, confidences = detector.detect_faces_cv2(img) #x1,x2,y1,y2       
 			
 			border_view = abs(long)+fovw/2>=180#true if viewport starts at one side and end in another	        
 		  
