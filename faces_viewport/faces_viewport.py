@@ -32,9 +32,9 @@ def extract_frames(video_path):
 
 	return dir_path
 
-def detect_faces(detector, pixels_rgb):    
+def detect_faces_tf(detector, pixels):    
 	
-	results = detector.detect_faces(pixels_rgb)
+	results = detector.detect_faces(pixels)
 	
 	faces = []
 	bounds = []
@@ -45,18 +45,21 @@ def detect_faces(detector, pixels_rgb):
 			x2, y2 = x1 + width, y1 + height
 			x1 = max(x1,0)
 			y1 = max(y1,0)
-			x2 = min(x2,pixels_rgb.shape[1]-1)
-			y2 = min(y2,pixels_rgb.shape[0]-1)
-			face = pixels_rgb[y1:y2, x1:x2]
+			x2 = min(x2,pixels.shape[1]-1)
+			y2 = min(y2,pixels.shape[0]-1)
+			face = pixels[y1:y2, x1:x2]
 
 			if face.shape[0] > 0 and face.shape[1] > 0:
 				faces.append(face)
 				bounds.append((x1,x2,y1,y2))
 				confidences.append(result['confidence'])
-				pixels_rgb = cv2.rectangle(pixels_rgb, (x1,y1), (x2,y2), (255,0,0), 5)
+				pixels = cv2.rectangle(pixels, (x1,y1), (x2,y2), (255,0,0), 5)
 				
-	return pixels_rgb, bounds, confidences
+	return pixels, bounds, confidences
 '''
+def detect_faces_pytorch(detector, pixels):
+
+
 def add_point(points, new_point, border_view, width_eq, fovw):
 	
 	if border_view:
@@ -87,7 +90,7 @@ def detect_faces_viewports(img_path, rows = 4, cols = 9, fovw = 60, fovh = 60, w
 			lat = i*(-60)+90
 			long = -180+45*j
 			img, long_map, lat_map = equ.GetPerspective(fovw, fovh, long, lat, width)    
-			img, bounds, confidences = detect_faces(detector, np.uint16(img)) #x1,x2,y1,y2       
+			img, bounds, confidences = detect_faces_tf(detector, np.uint16(img)) #x1,x2,y1,y2       
 			
 			border_view = abs(long)+fovw/2>=180#true if viewport starts at one side and end in another	        
 		  
