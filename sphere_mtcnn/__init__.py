@@ -1,2 +1,2 @@
 from .visualization_utils import show_bboxes
-from .detector import detect_faces_sphere
+from .detector import SphereMTCNN_Torch
