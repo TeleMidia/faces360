@@ -87,7 +87,7 @@ def detect_faces_viewports(img_path, rows = 4, cols = 9, fovw = 60, fovh = 60, w
 			lat = i*(-60)+90
 			long = -180+45*j
 			img, long_map, lat_map = equ.GetPerspective(fovw, fovh, long, lat, width)    
-			img, bounds, confidences = detect_faces(detector, np.uint16(img[:,:,::-1])) #x1,x2,y1,y2       
+			img, bounds, confidences = detect_faces(detector, np.uint16(img)) #x1,x2,y1,y2       
 			
 			border_view = abs(long)+fovw/2>=180#true if viewport starts at one side and end in another	        
 		  
@@ -130,7 +130,7 @@ def detect_faces_viewports(img_path, rows = 4, cols = 9, fovw = 60, fovh = 60, w
 
 			if verbose > 0:
 				axes[i,j].set_title(f'Lat: {lat}° Long {long}°')
-				axes[i,j].imshow(img)
+				axes[i,j].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 				axes[i,j].axis('off')
 	if verbose > 0:
 		plt.show()
@@ -144,7 +144,7 @@ def show_bounds(eq_img, bounds):
 			adj_point = (point[0]%eq_img.shape[1], point[1]%eq_img.shape[0])
 			cv2.circle(img, adj_point, 4, (255, 0, 0), -1)
 			
-	plt.imshow(img)
+	plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 	plt.show()	
 
 	return img
