@@ -1,3 +1,4 @@
+from .mtcnn_tf import MTCNN_tf
 import sys
 sys.path.append('../')
 
@@ -7,7 +8,6 @@ import cv2
 import os
 from faces_clustering import get_files_folder, VideoClustering, is_image
 from faces_clustering import Equirec2Perspec as E2P
-from mtcnn import MTCNN
 from mtcnn_torch import MTCNN_Torch
 import numpy as np
 from shapely import geometry
@@ -33,6 +33,7 @@ def extract_frames(video_path):
 
 	return dir_path
 
+'''
 def detect_faces_tf(detector, pixels):    
 	
 	results = detector.detect_faces(pixels)
@@ -58,7 +59,6 @@ def detect_faces_tf(detector, pixels):
 				
 	return pixels, bounds, confidences
 
-'''
 def add_point(points, new_point, border_view, width_eq, fovw):
 	
 	if border_view:
@@ -78,8 +78,8 @@ def detect_faces_viewports(img_path, rows = 4, cols = 9, fovw = 60, fovh = 60, w
 
 	eq_bounds = []
 	all_confs = [] #all confidences from detected faces in all lat long coordinates
-	#detector = MTCNN()
-	detector = MTCNN_Torch()
+	detector = MTCNN_tf()
+	#detector = MTCNN_Torch()
 	if verbose > 0:
 		fig, axes = plt.subplots(nrows=rows, ncols=cols, figsize=(18, 10))
 
