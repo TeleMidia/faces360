@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from tqdm.notebook import tqdm
 import cv2
 import os
-from utils import get_files_folder, is_image
+from utils import *
 from . import Equirec2Perspec as E2P
 from mtcnn_torch import MTCNN_Torch
 import numpy as np
@@ -75,13 +75,41 @@ class ViewportsFaceDetector():
 		self.fovw = fovw
 		self.fovh = fovh
 		self.width = width
-		self.verbose = 0
+		self.verbose = verbose
 
 		if not torch:
 			self.detector = MTCNN_tf()
 		else:
 			self.detector = MTCNN_Torch()
 
+	def detect_faces_polys(self, path):
+
+		equ, eq_bounds, all_confs = self.detect_faces_viewports(path)
+		eq_img = np.uint16(equ._img)
+		if self.verbose > 0:
+			img = show_bounds(eq_img, eq_bounds)
+
+		adj_bounds = [adjust_bounds(eq_bound.copy(), equ._img.shape[1]) for eq_bound in eq_bounds]
+
+		polys = [geometry.Polygon(adj_bound).buffer(0) for adj_bound in adj_bounds]
+
+		D = non_maximum_supression(polys, all_confs.copy(), 0.5)
+
+		org_bounds = [eq_bounds[d] for d in D]
+		adj_bounds = [adj_bounds[d] for d in D]
+		nms_polys = [polys[d] for d in D]
+
+		if self.verbose > 0:
+			img = show_bounds(eq_img, adj_bounds)
+
+			for poly in nms_polys:
+			    plt.plot(*poly.exterior.xy)
+			    plt.xlim(0, 1.5*img.shape[1])
+			    plt.ylim(0, img.shape[0])
+			    plt.gca().invert_yaxis()
+
+			plt.show()
+		return org_bounds, adj_bounds, nms_polys #original bounds, adjusted bounds (to construct polys), and polys
 
 	def detect_faces_viewports(self, img_path):
 		#all_bounds = []
