@@ -1,12 +1,17 @@
 import numpy as np
 import torch
 from torch.autograd import Variable
+from PIL import Image
 from .get_nets import PNet, RNet, ONet
 from .box_utils import nms, calibrate_box, get_image_boxes, convert_to_square
 from .first_stage import run_first_stage
+import cv2
+from utils import *
+from shapely import geometry
+import matplotlib.pyplot as plt
 
 class SphereMTCNN_Torch:
-    def __init__(self, min_face_size=20.0, thresholds=[0.6, 0.7, 0.8], nms_thresholds=[0.7, 0.7, 0.7]):
+    def __init__(self, min_face_size=20.0, thresholds=[0.6, 0.7, 0.8], nms_thresholds=[0.7, 0.7, 0.7], verbose = 0):
         """
         Arguments:
         min_face_size: a float number.
@@ -22,6 +27,7 @@ class SphereMTCNN_Torch:
         self.pnet = PNet()
         self.rnet = RNet()
         self.onet = ONet()
+        self.verbose = verbose
         self.onet.eval()
 
     def detect_faces(self, image):
@@ -72,6 +78,8 @@ class SphereMTCNN_Torch:
 
         # collect boxes (and offsets, and scores) from different scales
         bounding_boxes = [i for i in bounding_boxes if i is not None]
+        if len(bounding_boxes) == 0:
+            return bounding_boxes, []
         bounding_boxes = np.vstack(bounding_boxes)
 
         keep = nms(bounding_boxes[:, 0:5], self.nms_thresholds[0])
@@ -135,3 +143,63 @@ class SphereMTCNN_Torch:
         landmarks = landmarks[keep]
 
         return bounding_boxes, landmarks
+
+    def detect_faces_cv2(self, cv2_image):
+        img = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB)
+        #img = cv2_image
+        im_pil = Image.fromarray(img)
+
+        bounding_boxes, landmarks = self.detect_faces(im_pil)
+
+        faces = []
+        bounds = []
+        confidences = []
+
+        for bounding in bounding_boxes:
+            x1, y1, x2, y2, c =  bounding
+            x1, y1, x2, y2    = int(x1), int(y1), int(x2), int(y2)
+
+            x1 = max(x1,0)
+            y1 = max(y1,0)
+            x2 = min(x2,cv2_image.shape[1]-1)
+            y2 = min(y2,cv2_image.shape[0]-1)
+            face = cv2_image[y1:y2, x1:x2]
+
+            if face.shape[0] > 0 and face.shape[1] > 0:
+                faces.append(face)
+                bounds.append((x1,x2,y1,y2))
+                confidences.append(c)
+                cv2_image = cv2.rectangle(cv2_image, (x1,y1), (x2,y2), (255,0,0), 5)
+
+        return cv2_image, bounds, confidences
+
+    def detect_faces_polys(self, path):
+        img = cv2.imread(path)
+        cv2_image, bounds, confidences = self.detect_faces_cv2(img)
+
+        if self.verbose>0:
+            plt.imshow(cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB))
+            plt.show()
+
+        eq_bounds = []
+        for bound in bounds:
+            x1, x2, y1, y2 = bound
+            x1, x2 = min([x1,x2]),max([x1,x2])
+            y1, y2 = min([y1,y2]),max([y1,y2])
+            points = []
+            
+            points.append((int(x1), int(y1)))
+            points.append((int(x2), int(y1)))
+            points.append((int(x2), int(y2)))
+            points.append((int(x1), int(y2)))
+
+
+
+            #points = adjust_bounds(points, equ._img.shape[1])
+
+            eq_bounds = eq_bounds+[points]
+
+        adj_bounds = [adjust_bounds(eq_bound.copy(), img.shape[1]) for eq_bound in eq_bounds]
+        polys = [geometry.Polygon(adj_bound).buffer(0) for adj_bound in adj_bounds]
+
+        return eq_bounds, adj_bounds, polys
