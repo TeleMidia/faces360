@@ -51,7 +51,11 @@ def non_maximum_supression(B, S, nt):
 	B = B.copy()
 	while len(B) > 0:
 		m = np.argmax(S)
-		M = B[m]
+		try:
+			M = B[m]
+		except:
+			print('cofs ',S)
+			print('lenB ',len(B))
 		D.append(B_back.index(B[m]))
 		B.pop(m)
 		S.pop(m)
@@ -69,13 +73,14 @@ def non_maximum_supression(B, S, nt):
 
 class ViewportsFaceDetector():
 
-	def __init__(self, rows = 4, cols = 9, fovw = 60, fovh = 60, width = 720, verbose = 0, torch = False):
+	def __init__(self, rows = 4, cols = 9, fovw = 60, fovh = 60, width = 720, verbose = 0, torch = False, nms_th = 0.5):
 		self.rows = rows
 		self.cols = cols
 		self.fovw = fovw
 		self.fovh = fovh
 		self.width = width
 		self.verbose = verbose
+		self.nms_th = nms_th
 
 		if not torch:
 			self.detector = MTCNN_tf()
@@ -93,7 +98,7 @@ class ViewportsFaceDetector():
 
 		polys = [geometry.Polygon(adj_bound).buffer(0) for adj_bound in adj_bounds]
 
-		D = non_maximum_supression(polys, all_confs.copy(), 0.5)
+		D = non_maximum_supression(polys, all_confs.copy(), self.nms_th)
 
 		org_bounds = [eq_bounds[d] for d in D]
 		adj_bounds = [adj_bounds[d] for d in D]
@@ -164,7 +169,7 @@ class ViewportsFaceDetector():
 					#points = adjust_bounds(points, equ._img.shape[1])
 
 					eq_bounds = eq_bounds+[points]
-					all_confs = all_confs+[confidences]
+				all_confs = all_confs+confidences
 				#all_bounds = all_bounds+bounds
 
 				if self.verbose > 0:
@@ -173,5 +178,6 @@ class ViewportsFaceDetector():
 					axes[i,j].axis('off')
 		if self.verbose > 0:
 			plt.show()
-
+			print('Number of bounds', len(eq_bounds))
+			print('Confs: ', all_confs)
 		return equ, eq_bounds, all_confs
