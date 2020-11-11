@@ -36,7 +36,7 @@ def generate_colors(n):
 
     return color_values
 
-def adjust_bounds(vec, size_img):
+def adjust_bounds(vec, size_img = 1280):
     #print(vec)
     right_side = [a for a in vec if a[0]>size_img//2]
     if len(right_side) > 0 and len(right_side) < len(vec):
