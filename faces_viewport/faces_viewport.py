@@ -129,7 +129,7 @@ class ViewportsFaceDetector():
 		step_long = 360/(self.cols)
 		for i in range(self.rows):
 			for j in range(self.cols):
-				lat = 90+i*step_lat
+				lat = 90-self.fovh/2+i*step_lat
 				long = -180+j*step_long
 				img, long_map, lat_map = equ.GetPerspective(self.fovw, self.fovh, long, lat, self.width)          
 				img, bounds, confidences = self.detector.detect_faces_cv2(img) #x1,x2,y1,y2       
