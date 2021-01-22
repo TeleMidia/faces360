@@ -73,7 +73,7 @@ def non_maximum_supression(B, S, nt):
 
 class ViewportsFaceDetector():
 
-	def __init__(self, rows = 4, cols = 9, fovw = 60, fovh = 60, width = 720, verbose = 0, torch = False, nms_th = 0.5):
+	def __init__(self, rows = 3, cols = 6, fovw = 60, fovh = 60, width = 720, verbose = 0, torch = False, nms_th = 0.5):
 		self.rows = rows
 		self.cols = cols
 		self.fovw = fovw
@@ -125,8 +125,8 @@ class ViewportsFaceDetector():
 
 		if self.verbose > 0:
 			fig, axes = plt.subplots(nrows=self.rows, ncols=self.cols, figsize=(18, 10))
-		step_lat = -180/(self.rows-1)
-		step_long = 360/(self.cols-1)
+		step_lat = -180/(self.rows)
+		step_long = 360/(self.cols)
 		for i in range(self.rows):
 			for j in range(self.cols):
 				lat = 90+i*step_lat
