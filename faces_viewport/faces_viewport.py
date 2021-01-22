@@ -125,11 +125,12 @@ class ViewportsFaceDetector():
 
 		if self.verbose > 0:
 			fig, axes = plt.subplots(nrows=self.rows, ncols=self.cols, figsize=(18, 10))
-
+		step_lat = -180/(self.rows-1)
+		step_long = 360/(self.cols-1)
 		for i in range(self.rows):
 			for j in range(self.cols):
-				lat = i*(-60)+90
-				long = -180+45*j
+				lat = 90+i*step_lat
+				long = -180+j*step_long
 				img, long_map, lat_map = equ.GetPerspective(self.fovw, self.fovh, long, lat, self.width)          
 				img, bounds, confidences = self.detector.detect_faces_cv2(img) #x1,x2,y1,y2       
 				
