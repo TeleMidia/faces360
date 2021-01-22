@@ -132,7 +132,7 @@ of the sphere is 1.
 phi (radians): vertical angle, down is positive and up is negative
 theta (radians): horizontal angle
 '''
-def image_projection_to_equi(equirectangular_image, image, phi = 0, theta = 0, r_h = 1, draw_intermediate = False):
+def image_projection_to_equi(equirectangular_image, image, phi = 0, theta = 0, r_h = -1, draw_intermediate = False):
 
     eq_h, eq_w, _ =  equirectangular_image.shape
 
@@ -143,6 +143,10 @@ def image_projection_to_equi(equirectangular_image, image, phi = 0, theta = 0, r
 
     h, w, _ = image.shape
 
+    if r_h == -1:
+        diameter = eq_w/np.pi
+        r_h = h/diameter
+        #print(f'eq_w:{eq_w} diameter:{diameter} r_h:{r_h}')
     r_w = (image.shape[1]/image.shape[0])*r_h
 
     points = get8boundingpointsy_x(((0,0),(w-1,h-1)))#bounding_box = (minx, miny),(maxx,maxy) 
