@@ -145,8 +145,9 @@ def image_projection_to_equi(equirectangular_image, image, phi = 0, theta = 0, r
 
     if r_h == -1:
         diameter = eq_w/np.pi
-        r_h = h/diameter
+        r_h = h/(diameter*2)
         #print(f'eq_w:{eq_w} diameter:{diameter} r_h:{r_h}')
+
     r_w = (image.shape[1]/image.shape[0])*r_h
 
     points = get8boundingpointsy_x(((0,0),(w-1,h-1)))#bounding_box = (minx, miny),(maxx,maxy) 
@@ -194,5 +195,5 @@ def image_projection_to_equi(equirectangular_image, image, phi = 0, theta = 0, r
                 eq_area[i,j] = [0, 0, 255]
     
     if draw_intermediate:
-        return equirectangular_image, [image_points, eq_points, eq_area], points_projector
-    return equirectangular_image, None, points_projector
+        return equirectangular_image, [image_points, eq_points, eq_area], points_projector, r_h
+    return equirectangular_image, None, points_projector, r_h
