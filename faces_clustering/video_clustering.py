@@ -11,14 +11,14 @@ import shutil
 
 class VideoClustering:
 
-	def __init__(self, backbone, clustering_alg, verbose = 0):
+	def __init__(self, backbone, detector, clustering_alg, verbose = 0):
 		self.verbose = verbose
 		self.colors = None
 		self.dir_path = None
 		self.backbone = backbone
 		self.clustering_alg = clustering_alg
 		self.cluster_column = f'cluster_{self.clustering_alg}'
-		self.extractor = FeatureExtractor(backbone)
+		self.extractor = FeatureExtractor(backbone, detector)
 
 	def cluster(self, video_path, fps=None, dir_path = None):
 		assert os.path.isfile(video_path), 'video not found'
@@ -88,7 +88,7 @@ class VideoClustering:
 			image = cv2.rectangle(sample.copy(), (0,0), sample.shape[0:2], self.colors[i], int(sample.shape[0]/10))
 
 			axes[i].set_title(f'Person {i}')
-			axes[i].imshow(image)
+			axes[i].imshow(image[:,:,::-1])
 			axes[i].axis('off')
 			axes[i].set_aspect('equal')
 			i = i+1

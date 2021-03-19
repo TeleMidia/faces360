@@ -11,9 +11,9 @@ class FeatureExtractor:
     """docstring for FeatureExtractor"""
 
     # backbone=['vgg16', 'resnet50', 'senet50']
-    def __init__(self, backbone):
+    def __init__(self, backbone, detector = MTCNN()):
         self.backbone = backbone
-        self.detector = MTCNN()
+        self.detector = detector
         self.model = VGGFace(model=self.backbone, include_top=False, input_shape=(224, 224, 3), pooling='avg')
 
     def extract(self, urls):
@@ -28,6 +28,21 @@ class FeatureExtractor:
         return self.df_imgs
 
     def extract_faces(self, filename, required_size=(224, 224), confidence=0.9):
+
+        org_bounds, adj_bounds, _, all_confs, all_faces_from_viewports = self.detector.detect_faces_polys(filename)   
+
+        faces = []
+        bounds = []
+
+        for b, f, c in zip(adj_bounds, all_faces_from_viewports, all_confs):
+            if c >= confidence and f.shape[0] > 0 and f.shape[1] > 0:
+                bounds.append(b)
+                faces.append(cv2.resize(f, required_size)) 
+        if len(faces) > 0:
+            return faces, bounds  
+        return ('no_face','no_face')
+
+        '''
         pixels = cv2.imread(filename)
         if pixels is not None:
             pixels_rgb = cv2.cvtColor(pixels, cv2.COLOR_BGR2RGB)
@@ -50,6 +65,7 @@ class FeatureExtractor:
             if len(faces) > 0:
                 return faces, bounds
         return ('no_face','no_face')
+        '''
 
     def get_embeddings(self, filename):
         faces, bounds = self.extract_faces(filename)
