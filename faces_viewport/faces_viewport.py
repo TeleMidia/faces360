@@ -117,7 +117,6 @@ class ViewportsFaceDetector():
 		return org_bounds, adj_bounds, nms_polys #original bounds, adjusted bounds (to construct polys), and polys
 
 	def detect_faces_viewports(self, img_path):
-		#all_bounds = []
 		equ = E2P.Equirectangular(img_path)
 
 		eq_bounds = []
@@ -141,20 +140,7 @@ class ViewportsFaceDetector():
 					x1, x2 = min([x1,x2]),max([x1,x2])
 					y1, y2 = min([y1,y2]),max([y1,y2])
 					points = []
-					'''
-					for x in range(x1,x2+1):
-						new_point = (int(long_map[y1, x]), int(lat_map[y1, x]))                
-						points = add_point(points, new_point, border_view, equ._img.shape[1], fovw)
-					for y in range(y1,y2+1):
-						new_point = (int(long_map[y, x2]), int(lat_map[y, x2]))
-						points = add_point(points, new_point, border_view, equ._img.shape[1], fovw)
-					for x in range(x2,x1-1,-1):
-						new_point = (int(long_map[y2, x]), int(lat_map[y2, x]))
-						points = add_point(points, new_point, border_view, equ._img.shape[1], fovw)
-					for y in range(y2,y1-1,-1):
-						new_point = (int(long_map[y, x1]), int(lat_map[y, x1]))
-						points = add_point(points, new_point, border_view, equ._img.shape[1], fovw)
-					'''
+
 					points.append((int(long_map[y1, x1]), int(lat_map[y1, x1])))
 					points.append((int(long_map[y1, (x1+x2)//2]), int(lat_map[y1, (x1+x2)//2])))
 					points.append((int(long_map[y1, x2]), int(lat_map[y1, x2])))
@@ -167,11 +153,8 @@ class ViewportsFaceDetector():
 
 					points.append((int(long_map[(y1+y2)//2, x1]), int(lat_map[(y1+y2)//2, x1])))
 
-					#points = adjust_bounds(points, equ._img.shape[1])
-
 					eq_bounds = eq_bounds+[points]
 				all_confs = all_confs+confidences
-				#all_bounds = all_bounds+bounds
 
 				if self.verbose > 0:
 					axes[i,j].set_title(f'Lat: {lat}° Long {long}°')
