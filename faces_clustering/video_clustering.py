@@ -183,7 +183,9 @@ class VideoClustering:
 		if fps is None:
 			fps = original_fps
 		else:
-			fps = original_fps/fps		
+			fps = original_fps/fps
+		if self.verbose > 1:
+			print(f'Original video fps is {original_fps}. Extracting at each {fps} frames')
 
 		if os.path.isdir(dir_path):
 			if self.verbose > 1:
