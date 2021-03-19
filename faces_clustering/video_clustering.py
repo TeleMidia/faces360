@@ -232,6 +232,6 @@ class VideoClustering:
 		dt_embs['bounds'] = all_bounds
 
 		if save_dataframe:
-			dt_sw.to_pickle(f'{dir_path}.pkl')
+			dt_embs.to_pickle(f'{dir_path}.pkl')
 
 		return dt_embs 
