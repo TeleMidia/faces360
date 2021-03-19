@@ -163,7 +163,7 @@ class SphereMTCNN_Torch:
             y1 = max(y1,0)
             x2 = min(x2,cv2_image.shape[1]-1)
             y2 = min(y2,cv2_image.shape[0]-1)
-            face = cv2_image[y1:y2, x1:x2]
+            face = cv2_image[y1:y2, x1:x2].copy()
 
             if face.shape[0] > 0 and face.shape[1] > 0:
                 faces.append(face)
@@ -171,11 +171,11 @@ class SphereMTCNN_Torch:
                 confidences.append(c)
                 cv2_image = cv2.rectangle(cv2_image, (x1,y1), (x2,y2), (255,0,0), 5)
 
-        return cv2_image, bounds, confidences
+        return cv2_image, bounds, confidences, faces
 
     def detect_faces_polys(self, path):
         img = cv2.imread(path)
-        cv2_image, bounds, confidences = self.detect_faces_cv2(img)
+        cv2_image, bounds, confidences, faces = self.detect_faces_cv2(img)
 
         if self.verbose>0:
             plt.imshow(cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB))
@@ -202,4 +202,4 @@ class SphereMTCNN_Torch:
         adj_bounds = [adjust_bounds(eq_bound.copy(), img.shape[1]) for eq_bound in eq_bounds]
         polys = [geometry.Polygon(adj_bound).buffer(0) for adj_bound in adj_bounds]
 
-        return eq_bounds, adj_bounds, polys
+        return eq_bounds, adj_bounds, polys, confidences, faces

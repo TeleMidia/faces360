@@ -89,7 +89,7 @@ class ViewportsFaceDetector():
 
 	def detect_faces_polys(self, path):
 
-		equ, eq_bounds, all_confs = self.detect_faces_viewports(path)
+		equ, eq_bounds, all_confs, all_faces_from_viewports = self.detect_faces_viewports(path)
 		eq_img = np.uint16(equ._img)
 		if self.verbose > 0:
 			img = show_bounds(eq_img, eq_bounds)
@@ -103,6 +103,8 @@ class ViewportsFaceDetector():
 		org_bounds = [eq_bounds[d] for d in D]
 		adj_bounds = [adj_bounds[d] for d in D]
 		nms_polys = [polys[d] for d in D]
+		all_confs = [all_confs[d] for d in D]
+		all_faces_from_viewports = [all_faces_from_viewports[d] for d in D]
 
 		if self.verbose > 0:
 			img = show_bounds(eq_img, adj_bounds)
@@ -114,13 +116,14 @@ class ViewportsFaceDetector():
 			    plt.gca().invert_yaxis()
 
 			plt.show()
-		return org_bounds, adj_bounds, nms_polys #original bounds, adjusted bounds (to construct polys), and polys
+		return org_bounds, adj_bounds, nms_polys, all_confs, all_faces_from_viewports #original bounds, adjusted bounds (to construct polys), polys, confidences, faces
 
 	def detect_faces_viewports(self, img_path):
 		equ = E2P.Equirectangular(img_path)
 
 		eq_bounds = []
 		all_confs = [] #all confidences from detected faces in all lat long coordinates
+		all_faces_from_viewports = []
 
 		if self.verbose > 0:
 			fig, axes = plt.subplots(nrows=self.rows, ncols=self.cols, figsize=(18, 10))
@@ -131,7 +134,7 @@ class ViewportsFaceDetector():
 				lat = 90-self.fovh/2+i*step_lat
 				long = -180+j*step_long
 				img, long_map, lat_map = equ.GetPerspective(self.fovw, self.fovh, long, lat, self.width)          
-				img, bounds, confidences = self.detector.detect_faces_cv2(img) #x1,x2,y1,y2       
+				img, bounds, confidences, faces = self.detector.detect_faces_cv2(img) #x1,x2,y1,y2       
 				
 				border_view = abs(long)+self.fovw/2>=180#true if viewport starts at one side and end in another	        
 			  
@@ -155,6 +158,7 @@ class ViewportsFaceDetector():
 
 					eq_bounds = eq_bounds+[points]
 				all_confs = all_confs+confidences
+				all_faces_from_viewports = all_faces_from_viewports+faces
 
 				if self.verbose > 0:
 					axes[i,j].set_title(f'Lat: {lat}° Long {long}°')
@@ -164,4 +168,4 @@ class ViewportsFaceDetector():
 			plt.show()
 			print('Number of bounds', len(eq_bounds))
 			print('Confs: ', all_confs)
-		return equ, eq_bounds, all_confs
+		return equ, eq_bounds, all_confs, all_faces_from_viewports

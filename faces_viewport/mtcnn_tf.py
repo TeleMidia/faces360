@@ -28,7 +28,7 @@ class MTCNN_tf:
 				y1 = max(y1,0)
 				x2 = min(x2,pixels.shape[1]-1)
 				y2 = min(y2,pixels.shape[0]-1)
-				face = pixels[y1:y2, x1:x2]
+				face = pixels[y1:y2, x1:x2].copy()
 
 				if face.shape[0] > 0 and face.shape[1] > 0:
 					faces.append(face)
@@ -36,11 +36,11 @@ class MTCNN_tf:
 					confidences.append(result['confidence'])
 					pixels = cv2.rectangle(pixels, (x1,y1), (x2,y2), (255,0,0), 5)
 					
-		return pixels, bounds, confidences
+		return pixels, bounds, confidences, faces
 
 	def detect_faces_polys(self, path):
 		img = cv2.imread(path)
-		cv2_image, bounds, confidences = self.detect_faces_cv2(img)
+		cv2_image, bounds, confidences, faces = self.detect_faces_cv2(img)
 
 		if self.verbose>0:
 			plt.imshow(cv2.cvtColor(cv2_image, cv2.COLOR_BGR2RGB))
@@ -65,4 +65,4 @@ class MTCNN_tf:
 		adj_bounds = [adjust_bounds(eq_bound.copy(), img.shape[1]) for eq_bound in eq_bounds]
 		polys = [geometry.Polygon(adj_bound).buffer(0) for adj_bound in adj_bounds]
 
-		return eq_bounds, adj_bounds, polys
+		return eq_bounds, adj_bounds, polys, confidences, faces
