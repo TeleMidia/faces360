@@ -85,10 +85,11 @@ class VideoClustering:
 		[axi.set_axis_off() for axi in axes.ravel()]
 		for sample in self.faces_samples:
 			#axes.figure(figsize=(2,3))
-			image = cv2.rectangle(sample.copy(), (0,0), sample.shape[0:2], self.colors[i], int(sample.shape[0]/10))
+			new_sample = sample[:,:,::-1].copy()
+			image = cv2.rectangle(new_sample, (0,0), sample.shape[0:2], self.colors[i], int(sample.shape[0]/10))
 
 			axes[i].set_title(f'Person {i}')
-			axes[i].imshow(image[:,:,::-1])
+			axes[i].imshow(image)
 			axes[i].axis('off')
 			axes[i].set_aspect('equal')
 			i = i+1
@@ -104,7 +105,7 @@ class VideoClustering:
 		for c,b in zip(clusters, bounds):
 		  
 			if lines:
-				line_thickness = int((img.shape[0]/3)/len(self.faces_samples))
+				line_thickness = int((img.shape[0]/5)/len(self.faces_samples))
 				test = cv2.line(test, (0,test.shape[0]-line_thickness*(c+1)),
 					(img.shape[1]-1,test.shape[0]-line_thickness*(c+1)), self.colors[c], thickness=line_thickness)
 			else:
@@ -134,12 +135,12 @@ class VideoClustering:
 		else:
 			cluster_by_frames = self.cluster_by_frames.head(limit)
 
-		row_number = int(np.ceil(cluster_by_frames.shape[0]/6))
+		row_number = int(np.ceil(cluster_by_frames.shape[0]/4))
 
 		self.show_people_video(colors)
 
-		plt.figure(figsize = (15,row_number*2))
-		gs1 = gridspec.GridSpec(row_number, 6)
+		plt.figure(figsize = (12,row_number*3))
+		gs1 = gridspec.GridSpec(row_number, 4)
 		gs1.update(wspace=0, hspace=0) # set the spacing between axes. 
 		i = 0
 		for frame in tqdm(cluster_by_frames.index.values):
